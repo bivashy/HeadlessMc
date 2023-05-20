@@ -1,17 +1,22 @@
 package me.earth.headlessmc.launcher.auth;
 
-import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
-import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
-import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
-import lombok.*;
-import me.earth.headlessmc.api.config.Config;
-import me.earth.headlessmc.launcher.LauncherProperties;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import fr.litarvan.openauth.microsoft.MicrosoftAuthResult;
+import fr.litarvan.openauth.microsoft.MicrosoftAuthenticationException;
+import fr.litarvan.openauth.microsoft.MicrosoftAuthenticator;
+import lombok.CustomLog;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
+import lombok.var;
+import me.earth.headlessmc.api.config.Config;
+import me.earth.headlessmc.launcher.LauncherProperties;
 
 // TODO: when another config is loaded invalidate lastAccount?
 @CustomLog
@@ -42,7 +47,7 @@ public class AccountManager implements Iterable<Account> {
 
         log.warning("No valid account found!");
         throw new AuthException("You can't play the game without an account!" +
-                                    " Please use the login command.");
+                " Please use the login command.");
     }
 
     public Account login(String email, String password) throws AuthException {
@@ -58,9 +63,22 @@ public class AccountManager implements Iterable<Account> {
             val account = setAccount(result);
             cache.put(hash, account);
             return account;
-        } catch (MicrosoftAuthenticationException e) {
+        } catch(MicrosoftAuthenticationException e) {
             throw new AuthException(e.getMessage());
         }
+    }
+
+    public Account loginOffline(String name) {
+        val hash = name.hashCode();
+        val cachedAccount = cache.get(hash);
+        if (cachedAccount != null) {
+            return cachedAccount;
+        }
+
+        Account account = new Account(name, UUID.randomUUID().toString(), "access_token", "");
+        lastAccount = account;
+        save(account);
+        return account;
     }
 
     public Account loginWithWebView() throws AuthException {
@@ -68,7 +86,7 @@ public class AccountManager implements Iterable<Account> {
         try {
             val result = authenticator.loginWithWebview();
             return setAccount(result);
-        } catch (MicrosoftAuthenticationException e) {
+        } catch(MicrosoftAuthenticationException e) {
             throw new AuthException(e.getMessage());
         }
     }
@@ -89,9 +107,9 @@ public class AccountManager implements Iterable<Account> {
     private void save(Account account) {
         try {
             accountStore.save(account);
-        } catch (IOException e) {
+        } catch(IOException e) {
             log.error("Failed to save account " + account + " : "
-                          + e.getMessage());
+                    + e.getMessage());
         }
     }
 
@@ -100,10 +118,10 @@ public class AccountManager implements Iterable<Account> {
         val authenticator = new MicrosoftAuthenticator();
         try {
             val result = authenticator.loginWithRefreshToken(
-                account.getRefreshToken());
+                    account.getRefreshToken());
             log.debug("Refreshed account " + account + "successfully");
             return Optional.of(toAccount(result));
-        } catch (MicrosoftAuthenticationException e) {
+        } catch(MicrosoftAuthenticationException e) {
             log.error("Couldn't refresh: " + account + " : " + e.getMessage());
             return Optional.empty();
         }
@@ -111,9 +129,8 @@ public class AccountManager implements Iterable<Account> {
 
     private Account toAccount(MicrosoftAuthResult result) {
         return new Account(result.getProfile().getName(),
-                           result.getProfile().getId(),
-                           result.getAccessToken(),
-                           result.getRefreshToken());
+                result.getProfile().getId(),
+                result.getAccessToken(),
+                result.getRefreshToken());
     }
-
 }
