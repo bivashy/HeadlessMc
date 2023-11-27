@@ -63,7 +63,7 @@ public class AccountManager implements Iterable<Account> {
             val account = setAccount(result);
             cache.put(hash, account);
             return account;
-        } catch(MicrosoftAuthenticationException e) {
+        } catch (MicrosoftAuthenticationException e) {
             throw new AuthException(e.getMessage());
         }
     }
@@ -85,8 +85,12 @@ public class AccountManager implements Iterable<Account> {
         val authenticator = new MicrosoftAuthenticator();
         try {
             val result = authenticator.loginWithWebview();
+            if (result == null) {
+                throw new AuthException("Did not login into any account.");
+            }
+
             return setAccount(result);
-        } catch(MicrosoftAuthenticationException e) {
+        } catch (MicrosoftAuthenticationException e) {
             throw new AuthException(e.getMessage());
         }
     }
@@ -107,7 +111,7 @@ public class AccountManager implements Iterable<Account> {
     private void save(Account account) {
         try {
             accountStore.save(account);
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Failed to save account " + account + " : "
                     + e.getMessage());
         }
@@ -121,7 +125,7 @@ public class AccountManager implements Iterable<Account> {
                     account.getRefreshToken());
             log.debug("Refreshed account " + account + "successfully");
             return Optional.of(toAccount(result));
-        } catch(MicrosoftAuthenticationException e) {
+        } catch (MicrosoftAuthenticationException e) {
             log.error("Couldn't refresh: " + account + " : " + e.getMessage());
             return Optional.empty();
         }
@@ -131,6 +135,8 @@ public class AccountManager implements Iterable<Account> {
         return new Account(result.getProfile().getName(),
                 result.getProfile().getId(),
                 result.getAccessToken(),
-                result.getRefreshToken());
+                result.getRefreshToken(),
+                           result.getXuid(),
+                           result.getClientId());
     }
 }
