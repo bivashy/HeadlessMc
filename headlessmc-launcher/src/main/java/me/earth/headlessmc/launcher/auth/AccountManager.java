@@ -75,7 +75,7 @@ public class AccountManager implements Iterable<Account> {
             return cachedAccount;
         }
 
-        Account account = new Account(name, UUID.randomUUID().toString(), "access_token", "");
+        Account account = new Account(name, UUID.randomUUID().toString(), "access_token", "", "", "");
         lastAccount = account;
         save(account);
         return account;
