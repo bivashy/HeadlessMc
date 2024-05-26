@@ -22,9 +22,12 @@ import me.earth.headlessmc.launcher.LauncherProperties;
 @CustomLog
 @RequiredArgsConstructor
 public class AccountManager implements Iterable<Account> {
+    private static final String OFFLINE_UUID = "22689332a7fd41919600b0fe1135ee34";
     private final Map<Integer, Account> cache = new ConcurrentHashMap<>();
     private final AccountStore accountStore;
     private final AccountValidator validator;
+    @Getter
+    private final OfflineChecker offlineChecker;
     @Getter
     private Account lastAccount;
 
@@ -43,6 +46,10 @@ public class AccountManager implements Iterable<Account> {
         val password = config.get(LauncherProperties.PASSWORD);
         if (email != null && password != null) {
             return this.login(email, password);
+        }
+
+        if (offlineChecker.isOffline()) {
+            return new Account("Offline", OFFLINE_UUID, "", "", "", "");
         }
 
         log.warning("No valid account found!");

@@ -1,12 +1,17 @@
 # HeadlessMc
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6a86b3e62d3b47909de670b09737f8fd)](https://www.codacy.com/gh/3arthqu4ke/HeadlessMc/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=3arthqu4ke/HeadlessMc&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6a86b3e62d3b47909de670b09737f8fd)](https://app.codacy.com/gh/3arthqu4ke/headlessmc/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![GitHub All Releases](https://img.shields.io/github/downloads/3arthqu4ke/HeadlessMc/total.svg)](https://github.com/3arthqu4ke/HeadlessMc/releases)
 ![](https://github.com/3arthqu4ke/HeadlessMc/actions/workflows/gradle-publish.yml/badge.svg)
 ![GitHub](https://img.shields.io/github/license/3arthqu4ke/HeadlessMc)
 [![Docker Image Size](https://badgen.net/docker/size/3arthqu4ke/headlessmc?icon=docker&label=image%20size)](https://hub.docker.com/r/3arthqu4ke/headlessmc/)
 ![Github last-commit](https://img.shields.io/github/last-commit/3arthqu4ke/HeadlessMc)
 
-> :warning: HeadlessMc will not allow you to play without having bought Minecraft!
+> [!WARNING]
+> NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.
+> 
+> HeadlessMc will not allow you to play without having bought Minecraft! 
+> Accounts will always be validated.
+> Offline accounts can only be used to run the game headlessly in CI/CD pipelines.
 
 HeadlessMc allows you to launch Minecraft from the command line. It is also able to instrument the game: before
 launch the bytecode of the games libraries can be modified. HeadlessMc aims to use this feature to
@@ -40,6 +45,9 @@ the most important commands:
 | launch | Launches Minecraft. | \<version/id\> -commands -lwjgl -paulscode -lookup -jndi -noout -keep -exit |
 | forge | Installs Minecraft Forge. | \<version/id\> \<--uid\> |
 | fabric | Installs Fabric. | \<version/id\> |
+
+To launch the game in headless mode type use the launch command with the `-lwjgl` flag:
+`launch <version> -lwjgl`
 
 Arguments passed to commands have to be separated using spaces. If you want to pass an Argument which contains spaces
 you need to escape it using quotation marks, like this:

@@ -1,24 +1,21 @@
 package me.earth.headlessmc.command;
 
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
 import lombok.val;
 import me.earth.headlessmc.api.HeadlessMc;
 import me.earth.headlessmc.api.command.Command;
 import me.earth.headlessmc.api.command.CommandContext;
 import me.earth.headlessmc.api.command.CommandException;
+import me.earth.headlessmc.config.HmcProperties;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static me.earth.headlessmc.command.CommandUtil.levenshtein;
 
 @RequiredArgsConstructor
 @SuppressWarnings({"unchecked", "RedundantSuppression"}) // delegate
 public class CommandContextImpl implements CommandContext {
-    @Delegate(types = Iterable.class)
     protected final List<Command> commands = new ArrayList<>();
     protected final HeadlessMc log;
 
@@ -44,6 +41,9 @@ public class CommandContextImpl implements CommandContext {
             cmd.execute(args);
         } catch (CommandException commandException) {
             log.log(commandException.getMessage());
+            if (log.getConfig().get(HmcProperties.EXIT_ON_FAILED_COMMAND, false)) {
+                System.exit(-1);
+            }
         }
     }
 
@@ -70,6 +70,15 @@ public class CommandContextImpl implements CommandContext {
                         Arrays.toString(args), command.getName()));
             }
         }
+
+        if (log.getConfig().get(HmcProperties.EXIT_ON_FAILED_COMMAND, false)) {
+            System.exit(-1);
+        }
+    }
+
+    @Override
+    public @NotNull Iterator<Command> iterator() {
+        return commands.iterator();
     }
 
 }

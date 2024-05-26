@@ -16,6 +16,8 @@ import me.earth.headlessmc.launcher.version.Version;
 import java.io.IOException;
 import java.util.UUID;
 
+import static me.earth.headlessmc.launcher.LauncherProperties.RE_THROW_LAUNCH_EXCEPTIONS;
+
 @CustomLog
 public class LaunchCommand extends AbstractVersionCommand {
     public LaunchCommand(Launcher launcher) {
@@ -47,6 +49,7 @@ public class LaunchCommand extends AbstractVersionCommand {
         val files = ctx.getFileManager().createRelative(uuid.toString());
 
         boolean quit = flag("-quit", LauncherProperties.INVERT_QUIT_FLAG, args);
+        int status = 0;
         try {
             val process = ctx.getProcessFactory().run(
                 LaunchOptions.builder()
@@ -60,17 +63,22 @@ public class LaunchCommand extends AbstractVersionCommand {
             }
 
             try {
-                int status = process.waitFor();
+                status = process.waitFor();
                 ctx.log("Minecraft exited with code: " + status);
             } catch (InterruptedException ie) {
                 ctx.log("Launcher has been interrupted...");
                 Thread.currentThread().interrupt();
             }
         } catch (IOException | LaunchException | AuthException e) {
+            status = -1;
             e.printStackTrace();
             ctx.log(String.format(
                 "Couldn't launch %s: %s", version.getName(), e.getMessage()));
+            if (ctx.getConfig().get(RE_THROW_LAUNCH_EXCEPTIONS, false)) {
+                throw new RuntimeException(e);
+            }
         } catch (Throwable t) {
+            status = -1;
             val msg = String.format(
                 "Couldn't launch %s: %s", version.getName(), t.getMessage());
             log.error(msg);
@@ -93,7 +101,7 @@ public class LaunchCommand extends AbstractVersionCommand {
             }
 
             if (!CommandUtil.hasFlag("-stay", args)) {
-                System.exit(0);
+                System.exit(status);
             }
         }
     }

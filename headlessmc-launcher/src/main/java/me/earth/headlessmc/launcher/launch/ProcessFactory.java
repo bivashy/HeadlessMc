@@ -4,6 +4,7 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.var;
+import me.earth.headlessmc.api.config.HasConfig;
 import me.earth.headlessmc.launcher.LauncherProperties;
 import me.earth.headlessmc.launcher.auth.AuthException;
 import me.earth.headlessmc.launcher.files.FileManager;
@@ -19,13 +20,16 @@ import me.earth.headlessmc.launcher.version.Version;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipFile;
 
 @CustomLog
 @RequiredArgsConstructor
 public class ProcessFactory {
     private final FileManager files;
+    private final HasConfig config;
     private final OS os;
 
     public Process run(LaunchOptions options)
@@ -102,10 +106,15 @@ public class ProcessFactory {
         // TODO: proper features
         val features = Features.EMPTY;
         val targets = new ArrayList<Target>(version.getLibraries().size());
+        Set<String> libPaths = new HashSet<>();
         for (val library : version.getLibraries()) {
             if (library.getRule().apply(os, features) == Rule.Action.ALLOW) {
                 log.debug("Checking: " + library);
                 String libPath = library.getPath(os);
+                if (!libPaths.add(libPath)) {
+                    continue;
+                }
+
                 val path = files.getDir("libraries") + File.separator + libPath;
                 if (!new File(path).exists()) {
                     String url = library.getUrl(libPath);
@@ -147,7 +156,7 @@ public class ProcessFactory {
 
     protected void downloadAssets(FileManager files, Version version)
         throws IOException {
-        new AssetsDownloader(files, version.getAssetsUrl(), version.getAssets())
+        new AssetsDownloader(files, config, version.getAssetsUrl(), version.getAssets())
             .download();
     }
 

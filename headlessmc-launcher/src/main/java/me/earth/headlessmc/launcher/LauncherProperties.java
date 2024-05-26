@@ -50,5 +50,18 @@ public interface LauncherProperties extends HmcProperties {
     Property<String> PROFILE_PROPERTIES = string("hmc.profileproperties");
 
     Property<String> FABRIC_URL = string("hmc.fabric.url");
+    Property<Boolean> OFFLINE = bool("hmc.offline");
+    Property<Boolean> RE_THROW_LAUNCH_EXCEPTIONS = bool("hmc.rethrow.launch.exceptions");
+
+    // TODO: also check hashes for the libraries?
+    Property<Long> ASSETS_DELAY = number("hmc.assets.delay");
+    Property<Long> ASSETS_RETRIES = number("hmc.assets.retries");
+    Property<Boolean> ASSETS_PARALLEL = bool("hmc.assets.parallel");
+    Property<Boolean> DUMMY_ASSETS = bool("hmc.assets.dummy");
+    Property<Boolean> ASSETS_CHECK_HASH = bool("hmc.assets.check.hash");
+    Property<Boolean> ASSETS_CHECK_FILE_HASH = bool("hmc.assets.check.file.hash");
+    Property<Boolean> ASSETS_BACKOFF = bool("hmc.assets.backoff");
+
+    Property<Boolean> SET_LIBRARY_DIR = bool("hmc.set.library.dir");
 
 }
